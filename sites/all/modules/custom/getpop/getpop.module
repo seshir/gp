@@ -1,0 +1,51 @@
+<?php
+
+function getpop_user_login(&$edit, $account) {
+    global $user;
+    if( $user->uid > 0 && !isset($account->field_qrcode['und'][0]['value']) )  {
+        $enc = base64_encode('mypop_'.sprintf('%06d', $account->uid));
+        $edit['field_qrcode']['und'][0]['value'] = $enc;
+        $edit['field_barcode']['und'][0]['value'] = $enc;
+        user_save($account,$edit);
+    }
+}
+
+function getpop_init() {
+  // Init Tasks
+  global $user;
+  $account = user_load($user->uid);
+  if( $user->uid > 0 && isset($account->field_qrcode['und'][0]['value']) )  {
+     if(_getpop_decode_user($account->field_qrcode['und'][0]['value']) == 0) {
+        $enc = base64_encode('mypop_'.sprintf('%06d', $account->uid));
+        $edit['field_qrcode']['und'][0]['value'] = $enc;
+        $edit['field_barcode']['und'][0]['value'] = $enc;
+        user_save($account,$edit);
+     }
+  }
+}
+
+/*
+ * Decode User/Customer/Vendor Object
+ * returns uid if exists, else FALSE
+ */
+function _getpop_decode_user($encodedStr) {
+    $decoded = base64_decode($encodedStr);
+    $customerUid = trim(substr($decoded,6,strlen($decoded)));
+    if($customerAccount = user_load($customerUid) && is_numeric($customerUid)) {
+        return $customerUid;
+    } else {
+        return false;
+    }
+}
+
+function getpop_form_user_register_form_alter(&$form, &$form_state) {
+    array_unshift($form['#submit'],'_user_submission_service');
+}
+
+function _user_submission_service($form, &$form_state) {
+    $mail = $form_state['values']['mail'];
+    if(valid_email_address($mail)) {
+        $form_state['values']['name'] = str_replace('+','',$mail);
+    }
+}
+

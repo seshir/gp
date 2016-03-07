@@ -1,0 +1,95 @@
+<?php
+
+/**
+ * Defines Services Transaction resource plugins.
+ *
+ * @return
+ *   An associative array with the following keys:
+ *   - 'title': The display name of the controller.
+ *	 - 'description': A short description of the controller.
+ *   - 'class': The class name of the controller. This should be in a separate
+ *     file included in the module .info file.
+ *
+ * @see hook_services_entity_resource_info_alter()
+ */
+function services_transaction_services_entity_resource_info() {
+    $result = array();
+
+    $result['poptransaction'] = array(
+        'title' => 'Transaction Entity Processor',
+        'description' => 'Acts as a wrapper for Transaction entities. Data structures are modified as per Transaction REST service.',
+        'class' => 'ServicesTransactionResourceController',
+    );
+
+    return $result;
+}
+
+/**
+ * Creates the entity object for an array of given property values.
+ *
+ * @param $entity_type
+ *   The entity type to create an entity for.
+ * @param $values
+ *   An array of values as described by the entity's property info. All entity
+ *   properties of the given entity type that are marked as required, must be
+ *   present.
+ *   If the passed values have no matching property, their value will be
+ *   assigned to the entity directly, without the use of the metadata-wrapper
+ *   property.
+ *
+ * @return EntityDrupalWrapper
+ *   An EntityDrupalWrapper wrapping the newly created entity or FALSE, if
+ *   there were no information how to create the entity.
+ */
+function transaction_entity_property_values_create_entity($entity_type, $values = array()) {
+    if (entity_type_supports($entity_type, 'create')) {
+
+        $info = entity_get_info($entity_type);
+        // Create the initial entity by passing the values for all 'entity keys'
+        // to entity_create().
+        $entity_keys = array_filter($info['entity keys']);
+        $creation_values = array_intersect_key($values, array_flip($entity_keys));
+
+        // In case the bundle key does not match the property that sets it, ensure
+        // the bundle key is initialized somehow, so entity_extract_ids()
+        // does not bail out during wrapper creation.
+        if (!empty($info['entity keys']['bundle'])) {
+            $creation_values += array($info['entity keys']['bundle'] => FALSE);
+        }
+        $entity = entity_create($entity_type, $creation_values);
+
+        // Now set the remaining values using the wrapper.
+        $wrapper = entity_metadata_wrapper($entity_type, $entity);
+
+        foreach ($values as $key => $value) {
+            if (!in_array($key, $info['entity keys'])) {
+                if (isset($wrapper->$key)) {
+                    $wrapper->$key->set($value);
+                }
+                else {
+                    $entity->$key = $value;
+                }
+            }
+        }
+        //services_error(t("Received values '@p'", array('@p' => print_r($wrapper))), 403);
+        // Create new field collection items.
+        /*foreach ($line_items as $line_item) {
+
+            $line_item = entity_create('field_collection_item', array('field_name' => 'field_line_items'));
+            $line_item->setHostEntity('node', $entity);
+            $line_item_wrapper = entity_metadata_wrapper('field_collection_item', $line_item);
+
+            $line_item_wrapper->field_product_name->set($line_item['product_name']);
+            $line_item_wrapper->field_product_price->set($line_item['product_price']);
+            $line_item_wrapper->field_validity_period->set($line_item['validity_period']);
+
+            $line_item_wrapper->save(TRUE);
+            node_save($entity);
+        }*/
+
+        // @todo: Once we require Drupal 7.7 or later, verify the entity has
+        // now a valid bundle and throw the EntityMalformedException if not.
+        return $wrapper;
+    }
+    return FALSE;
+}

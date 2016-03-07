@@ -1,0 +1,29 @@
+{
+  "exchanges": [
+  {
+    "name": "mypopex",
+    "type": "direct",
+    "passive": false,
+    "durable": true,
+    "auto_delete": false,
+    "internal": false,
+    "nowait": false
+  }
+  ],
+  "queues": [
+  {
+    "name": "mypoptx",
+    "passive": false,
+    "durable": true,
+    "exclusive": false,
+    "auto_delete": false,
+    "nowait": false,
+    "bindings": [
+    {
+      "exchange": "mypopex",
+      "routing_key": "mypop_key"
+    }
+    ]
+  }
+  ]
+}

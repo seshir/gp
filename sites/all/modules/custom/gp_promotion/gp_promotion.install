@@ -1,0 +1,57 @@
+<?php
+/**
+ * Implements hook_schema
+ */
+
+function gp_promotion_schema() {
+  $schema['offer_redemption'] = array(
+    'description' => 'Offer Redemption table for Promotions Content type offer codes.',
+    'fields' => array(
+      'rid' => array(
+        'description' => 'Offer Redemption Attempt',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'offercode' => array(
+        'description' => 'Offer Code Attempted',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'uid' => array(
+        'description' => 'User Attempted to Redeem',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'status' => array(
+        'description' => 'Boolean indicating whether the offer is redeemed.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 1,
+      ),
+      'created' => array(
+        'description' => 'The Unix timestamp when the redemption was attempted.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'indexes' => array(
+      'redemption_attempted' => array('created'),
+      'uid'                 => array('uid'),
+      'pid'                => array('pid'),
+    ),
+    'foreign keys' => array(
+      'user_attempted' => array(
+        'table' => 'users',
+        'columns' => array('uid' => 'uid'),
+      ),
+    ),
+    'primary key' => array('rid'),
+  );
+  return $schema;
+}

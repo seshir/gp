@@ -1,0 +1,11 @@
+name = GetPOP Promotions Service
+description = Expose Promotions entity as service
+package = GetPOP
+core = 7.x
+version = 7.x-1.0
+
+dependencies[] = services_entity
+dependencies[] = services
+dependencies[] = entity
+
+files[] = resources/promotion_resource.inc

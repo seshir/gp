@@ -1,0 +1,82 @@
+<?php
+/**
+ * Implements hook_services_resources().
+ */
+function gp_promotion_services_resources() {
+    $promotion_resource = array(
+        'promotions' => array(
+            'operations' => array(
+                'retrieve' => array(
+                    'file' => array('type' => 'inc', 'module' => 'gp_promotion', 'name' => 'resources/promotion_resource'),
+                    'callback' => '_promotion_resource_retrieve',
+                    'args' => array(
+                        array(
+                            'name' => 'nid',
+                            'optional' => FALSE,
+                            'source' => array('path' => 0),
+                            'type' => 'int',
+                            'description' => 'The nid of the node to get',
+                        ),
+                    ),
+                    'access callback' => '_promotion_resource_access',
+                    'access arguments' => array('view'),
+                    'access arguments append' => TRUE,
+                ),
+                'index' => array(
+                    'file' => array('type' => 'inc', 'module' => 'gp_promotion', 'name' => 'resources/promotion_resource'),
+                    'callback' => '_promotion_resource_index',
+                    'args' => array(
+                        array(
+                            'name' => 'page',
+                            'optional' => TRUE,
+                            'type' => 'int',
+                            'description' => 'The zero-based index of the page to get, defaults to 0.',
+                            'default value' => 0,
+                            'source' => array('param' => 'page'),
+                        )
+                    ),
+                    'access arguments' => array('access content'),
+                ),
+            ),
+        ),
+        'redeem' => array(
+            'operations' => array(
+                'create' => array(
+                    'file' => array('type' => 'inc', 'module' => 'gp_promotion', 'name' => 'resources/promotion_resource'),
+                    'callback' => '_promotion_offer_redeem',
+                    'args' => array(
+                        array(
+                            'name' => 'offercode',
+                            'optional' => FALSE,
+                            'source' => 'data',
+                            'description' => 'Offer Code',
+                            'type' => 'string',
+                        ),
+                    ),
+                    'access callback' => '_promotion_resource_access',
+                    'access arguments' => array('view'),
+                    'access arguments append' => TRUE,
+                ),
+            ),
+        ),
+    );
+
+    return $promotion_resource;
+}
+
+/**
+ * Access callback for the transaction resource.
+ *
+ * @param string $op
+ *  The operation that's going to be performed.
+ * @param array $args
+ *  The arguments that will be passed to the callback.
+ * @return bool
+ *  Whether access is given or not.
+ */
+function _promotion_resource_access($op, $args) {
+    global $user;
+    return TRUE;
+    //$resource = new ServicesTransactionResourceController();
+    //return $resource->access($op, $args);
+}

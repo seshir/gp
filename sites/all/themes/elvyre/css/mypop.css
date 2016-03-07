@@ -1,0 +1,192 @@
+/* My-POP CSS */
+body, p, a {
+    font-family: "GothamRounded-Light","Open Sans", Arial, sans-serif;
+}
+body b {
+    font-family: 'GothamRounded-Medium',"Open Sans", Arial, sans-serif;
+}
+th, td {
+    min-width: 150px;
+    padding: 10px;
+}
+thead {
+    background: #727C89;
+    color: #fff;
+}
+thead a,thead a:hover {
+    color: #fff !important;
+}
+body.front #header-wrapper {
+  background: url('../img/mypop/Home-Banner.png') no-repeat #FFF 145% 0%;
+  min-height: 1000px;
+}
+body.front #header-wrapper .home-logo {
+    margin: 150px auto 0 auto;
+    width: 100%;
+    display: block;
+}
+body.front #header-wrapper .home-logo .home-logo-1{
+    width: 63.5%;
+    display: block;
+    background: url('../img/mypop/banner-bg.png') repeat-x transparent 0% 50%;
+}
+body.front span.banner-text {
+    width: 550px;
+    display: block;
+    margin: 0 auto;
+    position: relative;
+    text-align: left;
+}
+body.front #logo {
+    float: none;
+    margin: 25px auto;
+    max-width: 170px;
+    text-align: center;
+    position: relative;
+}
+body.front span.banner-text p,body.front #header-stmt p {
+    font-size: 34px;
+    color: #7fcbae;
+    font-weight: 100;
+    line-height: 45px;
+}
+body.front #header-stmt {
+    top: 400px;
+    width: auto;
+    text-align: center;
+    margin: 0 auto;
+}
+div#header-stmt span {
+    display: block;
+}
+/* Services blocks */
+section.service-box-12 {
+    text-align: center;
+}
+section.service-box-12 .icon i {
+    padding: 48px;
+    position: relative;
+    top: -35px;
+    text-align: center;
+    margin: 0 auto;
+}
+section.service-box-12 .icon .icon-simple{
+    background: url('../img/mypop/simple.png') no-repeat;
+}
+section.service-box-12 .icon-green {
+    background: url('../img/mypop/green.png') no-repeat;
+}
+section.service-box-12 .icon-convenient {
+    background: url('../img/mypop/convenient.png') no-repeat;
+}
+
+.retail-description {
+    display: block;
+    width: 100%;
+    float: left;
+    margin-left: 10%;
+}
+.retail-description .retail-description-block {
+    width: 30%;
+    margin: 10px 10%;
+    float: left;
+}
+.retail-description a.retail-business-nav.btn {
+    float: right;
+    margin: 2%;
+    padding: 10px 40px;
+    background: #7fcbae;
+    color: #FFF;
+}
+#main-container {
+    margin-top: 190px;
+    min-height: 1320px;
+    background: url(../img/mypop/Go-Green.png) no-repeat #FFF -50% 20%;
+}
+.page-content p {
+    font-size: 18px;
+}
+.go-green {
+    margin: 15px auto;
+    width: 500px;
+    display: block;
+    position: relative;
+    left: 20%;
+}
+.go-green p {
+    font-size: 30px;
+    line-height: 35px;
+    color: #7fcbae;
+}
+#main-container div.planet-text {
+    margin: 0 auto;
+    width: 500px;
+    display: block;
+    position: relative;
+    left: 20%;
+    font: 22px "GothamRounded-Light",'Open Sans', Arial, sans-serif;
+}
+#partner-logo {
+    position: relative;
+    left: 20%;
+    margin: 0 auto;
+    width: 500px;
+    display: block;
+}
+#partner-logo .parnter-img {
+
+}
+#top-bar-wrapper {
+    background: transparent;
+    border: none;
+    font-size: 13px;
+}
+@media (max-width: 1280px)  {
+    body.front #header-wrapper {
+        background: url('../img/mypop/Home-Banner-1280.png') no-repeat #FFF 125% 0%;
+    }
+    #main-container {
+        background: url('../img/mypop/Go-Green-1280.png') no-repeat #FFF -50% 20%;
+    }
+}
+@media (max-width: 600px)  {
+    body.front #header-wrapper {
+        background: none;
+    }
+    #main-container {
+        background: none;
+    }
+}
+.download-app {
+    margin: 70px auto;
+    text-align: center;
+}
+.download-arrow {
+    margin: 150px auto 50px auto;
+    display: block;
+    width: 100%;
+    text-align: center;
+}
+.download-arrow a {
+    background: url("../img/mypop/DownArrow.png") no-repeat ;
+    padding: 20px 39px;
+}
+.user-login-form input.form-text, .user-register-form input.form-text{
+    width: 300px;
+}
+.user-register-form .password-strength {
+    float: none;
+}
+.heading-centered h2 {
+    color: #7fcbae;
+    text-align: left;
+}
+.heading-centered .form-submit {
+    background-color: #7fcbae;
+}
+.heading-centered h3 {
+    text-align: left;
+}
+.heading-centered p {
+    text-align: justify;
+}

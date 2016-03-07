@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Sales Transaction Content Type feature.
+ */
+
+include_once 'sales_transaction_content_type.features.inc';

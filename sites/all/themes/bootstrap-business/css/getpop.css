@@ -1,0 +1,20 @@
+#main-navigation {
+ background-color: #ff7063;
+}
+#main-navigation ul.menu li a { color: #fff; }
+#main-navigation ul.menu li a:hover, a:focus { color: #fff; }
+#header { padding: 10px 0; }
+.views-exposed-form .views-exposed-widget { float: none; }
+.view-view-purchase .content > div {
+    float: left;
+    margin: 5px 0;
+    width: 100%;
+}
+.view-view-purchase .content > div > .field-label {
+    font-style: italic;
+    font-weight: bold;
+    margin-right: 5px;
+}
+.view-view-purchase .content > div > .field-items {
+    margin-left: 15px;
+}

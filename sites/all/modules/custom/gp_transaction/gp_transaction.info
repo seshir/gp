@@ -1,0 +1,12 @@
+name = Get Transaction Service
+description = Expose Transaction entity as service
+package = GetPOP
+core = 7.x
+version = 7.x-1.0
+
+dependencies[] = services_entity
+dependencies[] = services
+dependencies[] = entity
+
+files[] = resources/transaction_resource.inc
+files[] = resources/services_transaction_resource_clean.inc

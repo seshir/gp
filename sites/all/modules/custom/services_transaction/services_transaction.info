@@ -1,0 +1,11 @@
+name = Transaction Services
+description = Transaction content exposed as REST service to be consumed
+core = 7.x
+
+dependencies[] = services_entity
+dependencies[] = services
+dependencies[] = entity
+
+files[] = plugins/services_transaction_resource_clean.inc
+
+

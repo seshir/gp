@@ -1,0 +1,7 @@
+name = GetPOP
+description = Get POP Customizations
+core = 7.x
+version = "7.x-1.x"
+php = 5.3
+
+files[] = getpop.inc

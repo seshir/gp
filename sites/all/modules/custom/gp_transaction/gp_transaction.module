@@ -1,0 +1,402 @@
+<?php
+/**
+ * Implements hook_services_resources().
+ */
+function gp_transaction_services_resources() {
+    $transaction_resource = array(
+        'transactions' => array(
+            'operations' => array(
+                'retrieve' => array(
+                    'file' => array('type' => 'inc', 'module' => 'gp_transaction', 'name' => 'resources/transaction_resource'),
+                    'callback' => '_transaction_resource_retrieve',
+                    'args' => array(
+                        array(
+                            'name' => 'nid',
+                            'optional' => FALSE,
+                            'source' => array('path' => 0),
+                            'type' => 'int',
+                            'description' => 'The nid of the node to get',
+                        ),
+                    ),
+                    'access callback' => '_transaction_resource_access',
+                    'access arguments' => array('view'),
+                    'access arguments append' => TRUE,
+                ),
+                'create' => array(
+                    'file' => array('type' => 'inc', 'module' => 'gp_transaction', 'name' => 'resources/transaction_resource'),
+                    'callback' => '_transaction_resource_create',
+                    'args' => array(
+                        array(
+                            'name' => 'node',
+                            'optional' => FALSE,
+                            'source' => 'data',
+                            'description' => 'The transaction data to create',
+                            'type' => 'SimpleXmlElement',
+                        ),
+                    ),
+                    'access callback' => '_transaction_resource_access',
+                    'access arguments' => array('create'),
+                    'access arguments append' => TRUE,
+                ),
+                'update' => array(
+                    'file' => array('type' => 'inc', 'module' => 'gp_transaction', 'name' => 'resources/transaction_resource'),
+                    'callback' => '_transaction_resource_update',
+                    'args' => array(
+                        array(
+                            'name' => 'nid',
+                            'optional' => FALSE,
+                            'source' => array('path' => 0),
+                            'type' => 'int',
+                            'description' => 'The nid of the node to get',
+                        ),
+                        array(
+                            'name' => 'node',
+                            'optional' => FALSE,
+                            'source' => 'data',
+                            'description' => 'The node data to update',
+                            'type' => 'array',
+                        ),
+                    ),
+                    'access callback' => '_transaction_resource_access',
+                    'access arguments' => array('update'),
+                    'access arguments append' => TRUE,
+                ),
+                'delete' => array(
+                    'file' => array('type' => 'inc', 'module' => 'gp_transaction', 'name' => 'resources/transaction_resource'),
+                    'callback' => '_transaction_resource_delete',
+                    'args' => array(
+                        array(
+                            'name' => 'nid',
+                            'optional' => FALSE,
+                            'source' => array('path' => 0),
+                            'type' => 'int',
+                        ),
+                    ),
+                    'access callback' => '_transaction_resource_access',
+                    'access arguments' => array('delete'),
+                    'access arguments append' => TRUE,
+                ),
+                'index' => array(
+                    'file' => array('type' => 'inc', 'module' => 'gp_transaction', 'name' => 'resources/transaction_resource'),
+                    'callback' => '_transaction_resource_index',
+                    'args' => array(
+                        array(
+                            'name' => 'page',
+                            'optional' => TRUE,
+                            'type' => 'int',
+                            'description' => 'The zero-based index of the page to get, defaults to 0.',
+                            'default value' => 0,
+                            'source' => array('param' => 'page'),
+                        ),
+                        array(
+                            'name' => 'fields',
+                            'optional' => TRUE,
+                            'type' => 'string',
+                            'description' => 'The fields to get.',
+                            'default value' => '*',
+                            'source' => array('param' => 'fields'),
+                        ),
+                        array(
+                            'name' => 'parameters',
+                            'optional' => TRUE,
+                            'type' => 'array',
+                            'description' => 'Parameters array',
+                            'default value' => array(),
+                            'source' => array('param' => 'parameters'),
+                        ),
+                        array(
+                            'name' => 'pagesize',
+                            'optional' => TRUE,
+                            'type' => 'int',
+                            'description' => 'Number of records to get per page.',
+                            'default value' => variable_get('services_node_index_page_size', 20),
+                            'source' => array('param' => 'pagesize'),
+                        ),
+                        array(
+                            'name' => 'count',
+                            'optional' => TRUE,
+                            'type' => 'int',
+                            'description' => 'Results count requested',
+                            'default value' => 10,
+                            'source' => array('param' => 'count'),
+                        ),
+                    ),
+                    'access arguments' => array('access content'),
+                ),
+            ),
+        ),
+    );
+
+    return $transaction_resource;
+}
+
+/**
+ * Implements hook_menu
+ */
+function gp_transaction_menu() {
+    $items['create/fc'] = array(
+        'title' => t('Create FC Item'),
+        'page callback' => '_create_fc_item',
+        'access arguments' => array('access content'),
+        'type' => MENU_CALLBACK,
+    );
+    return $items;
+}
+
+function _create_fc_item ($parentEntityId, $parentEntityType, $parentEntityName, $fc_name, $fc_array, $fc_sub_key ) {
+
+    $entity = entity_load_single($parentEntityType, $parentEntityId);
+
+    foreach($fc_array as $item_key => $fc_item) {
+        $fc_item = (array) $fc_item;
+
+        $frame = entity_create('field_collection_item',array('field_name' => $fc_name));
+        $frame->setHostEntity($parentEntityType, $entity);
+        $frame_wrapper = entity_metadata_wrapper('field_collection_item', $frame);
+        foreach($fc_item as $key => $value ) {
+            if(is_string($value)) {
+                $fc_key = 'field_'.strtolower($fc_sub_key.'_'.$key);
+                if(strlen($fc_key) > 30 )
+                    $fc_key = 'field_'.strtolower($fc_sub_key.'_'.'descri');
+
+                $field_instance = field_info_instance('field_collection_item', $fc_key, $fc_name);
+                if($field_instance['settings']['text_processing'] == 1)
+                    $frame_wrapper->$fc_key->set(array('value' => $value));
+                else
+                    $frame_wrapper->$fc_key->set($value);
+            } else {
+                $value = (array) $value;
+                foreach($value as $fc_sub_key2 => $value2 ) {
+                    if($fc_sub_key == 'parts_paymentmethod')
+                        $fc_key = 'field_'.strtolower($key.'_'.$fc_sub_key2);
+                    else
+                        $fc_key = 'field_'.strtolower($fc_sub_key.'_'.$key.'_'.$fc_sub_key2);
+
+                    $field_instance = field_info_instance('field_collection_item', $fc_key, $fc_name);
+                    if($field_instance['settings']['text_processing'] == 1)
+                        $frame_wrapper->$fc_key->set(array('value' => $value2));
+                    else
+                        $frame_wrapper->$fc_key->set($value2);
+                }
+
+            }
+        }
+        $frame_wrapper->save();
+    }
+
+    return entity_save($parentEntityType, $entity);
+}
+/**
+ * Gets a note object by id.
+ *
+ * @param int $id
+ * @return object
+ */
+function transaction_get_resource($id) {
+    global $user;
+    if(!($user->uid > 0) )
+        services_error(t('Unauthorized transaction'),401);
+
+    if(isset($id) && is_numeric($id)) {
+        $transactions = array();
+        $response = new stdClass();
+        $transactions = entity_load('node', array($id));
+        $entity = $transactions[$id];
+
+        $fc_customer_id = $entity->field_roles_customer[LANGUAGE_NONE][0]['value'];
+        $fc_customer = field_collection_item_load_multiple(array($fc_customer_id));
+
+        if($user->uid != $fc_customer[$fc_customer_id]->field_roles_customer_id[LANGUAGE_NONE][0]['target_id'] )
+            services_error(t('Unauthorized transaction'),401);
+
+        $wrapper = entity_metadata_wrapper('node', $entity->nid);
+        if($entity->type == 'sales_transaction') {
+            foreach($entity as $key => $data ) {
+                $response->type = $entity->type;
+                $response->name = $entity->title;
+                $response->description = $entity->body[LANGUAGE_NONE][0]['value'];
+                $response->nid = $entity->nid;
+
+                if(substr($key, 0, 6) == 'field_') {
+                    $response->$key = _fetch_entity_fields('node', $entity, $key);
+                }
+            }
+            return $response;
+        }
+        else
+            services_error(t('Invalid transaction'),404);
+   } else {
+        services_error(t('Invalid transaction'),404);
+   }
+}
+
+function _fetch_entity_fields($entity_type, $entity_id, $key) {
+    $instance = field_info_field($key);
+    if($instance['type'] != 'field_collection') {
+        $fields = field_get_items($entity_type, $entity_id, $key);
+        $resultSet = $fields[0]['value'];
+    } else {
+        $fc_fields = field_get_items($entity_type, $entity_id, $key);
+        // Extract the field collection item ids
+        $ids = array();
+        $revisionIds = array();
+        foreach ($fc_fields as $fc_field) {
+            $collections[$fc_field['value']] = field_collection_item_revision_load($fc_field['revision_id']);
+        }
+
+        //Get the entities
+        $resultSet = array();
+
+        //Loop over the array - if you have more than one entity
+        foreach ($collections as $collection ) {
+            if(empty($collection)) {
+		continue;
+	    }
+            $res = array();
+            //Iterate over all member vars of the FieldCollectionItemEntity object
+            foreach($collection as $fc_key => $value) {
+                //Look for fields - there are some other class vars, too.
+                $fc_instance = field_info_field($fc_key);
+                if (strpos ($fc_key, 'field') !== false) {
+                    //Search for textfields
+                    if($fc_instance['type'] == 'field_collection' ) {
+                        $res[$fc_key] = field_collection_item_revision_load($value['und'][0]['revision_id']);
+
+                        //Alter spec array
+                        $specFCItem = array();
+                        foreach($res[$fc_key]->field_specification['und'] as $spec ) {
+                            $specFC = array();
+                            $specFC = field_collection_item_load($spec['value']);
+                            if(isset($specFC->field_charecteristic_value['und'][0]['value'])) {
+                                $specFCItem[$spec['value']] = array(
+                                    'value' => $specFC->field_charecteristic_value['und'][0]['value'],
+                                    'name' => $specFC->field_sp_name['und'][0]['value'],
+                                );
+                            }
+                        }
+                        $res[$fc_key]->field_specification = $specFCItem;
+
+                    } else if (isset($value['und']) && is_array($value ['und']) && isset($value['und'][0]['value'])) {
+                        $res[$fc_key] = $value['und'][0]['value'];
+                    } else if($fc_key == 'field_roles_customer_id' || $fc_key == 'field_roles_vendor_id') {
+                        $res[$fc_key] = $value['und'][0]['target_id'];
+                    }
+                }
+            }
+            $resultSet[] = $res;
+        }
+
+    }
+
+    return $resultSet;
+}
+/**
+ * Writes a note to the database
+ *
+ * @param object $note
+ * @return void
+ */
+function transaction_write_resource($transaction) {
+    $primary_key = !empty($transaction->id) ? array('id') : NULL;
+    drupal_write_record('transaction', $transaction, $primary_key);
+}
+/**
+ * Deletes a note from the database.
+ *
+ * @param int $id
+ * @return void
+ */
+function transaction_delete_resource($id) {
+    db_query("DELETE FROM {transaction} WHERE id=:id", array(
+        ':id' => $id,
+    ));
+}
+
+
+/**
+ * Access callback for the transaction resource.
+ *
+ * @param string $op
+ *  The operation that's going to be performed.
+ * @param array $args
+ *  The arguments that will be passed to the callback.
+ * @return bool
+ *  Whether access is given or not.
+ */
+function _transaction_resource_access($op, $args) {
+    global $user;
+    return TRUE;
+    $resource = new ServicesTransactionResourceController();
+    return $resource->access($op, $args);
+}
+
+/**
+ * Implementation of hook_permission
+ */
+function gp_transaction_permission() {
+    return array(
+        'transaction resource view any transaction' => array(
+            'title' => t('View Transaction Resource'),
+            'description' => t('View Transaction resource using Services'),
+        ),
+        'transaction resource edit any transaction' => array(
+            'title' => t('Edit Transaction Resource'),
+            'description' => t('Edit Transaction resource using Services'),
+        ),
+        'transaction resource delete any transaction' => array(
+            'title' => t('Delete Transaction Resource'),
+            'description' => t('Delete Transaction resource using Services'),
+        ),
+    );
+}
+
+/**
+ * Triggered when the REST server request a list of available request parsers.
+ *
+ * @param array $parsers
+ *  An associative array of parser callbacks keyed by mime-type.
+ * @return void
+ */
+function gp_transaction_rest_server_request_parsers_alter(&$parsers) {
+    module_load_include('inc','gp_transaction','includes/TransactionServerParser');
+
+    $parsers['application/xml'] = 'TransactionServicesParserXML';
+    $parsers['text/xml'] = 'TransactionServicesParserXML';
+}
+
+
+/**
+ * Implements hook_message_broker_consumers().
+ */
+function gp_transaction_message_broker_consumers($self_name) {
+    $consumers = array();
+
+    // An example consumer implemented using a closure.
+    $consumers['consumer3_' . $self_name] = array(
+        'queue' => 'mypoptxq',
+        'callback' => 'mypop_consume_transaction'
+    );
+
+    return $consumers;
+}
+
+
+function mypop_consume_transaction($message, \Closure $ack) {
+    module_load_include('inc','services','includes/services.runtime');
+    module_load_include('inc','gp_transaction','resources/transaction_resource');
+    module_load_include('inc','gp_transaction','resources/services_transaction_resource_clean');
+
+    // get a now SimpleXmlElement object from the XML string
+    $xml_data = simplexml_load_string($message->body);
+    $tid = _transaction_resource_create($xml_data);
+
+    if (function_exists('drush_print')) {
+        drush_print('Transaction ID: ' . $tid );
+    }
+    else {
+        drupal_set_message(t('Hello worlds, @name.', array('@name' => $xml_data)));
+    }
+
+    watchdog('gp_transaction', 'Transaction created from MQ queue mypoptx - Transaction ID: @tid', array('@tid' => $tid), WATCHDOG_INFO);
+    $ack();
+}
