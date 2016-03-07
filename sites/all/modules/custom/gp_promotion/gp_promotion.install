@@ -43,7 +43,6 @@ function gp_promotion_schema() {
     'indexes' => array(
       'redemption_attempted' => array('created'),
       'uid'                 => array('uid'),
-      'pid'                => array('pid'),
     ),
     'foreign keys' => array(
       'user_attempted' => array(
